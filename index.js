@@ -41,18 +41,10 @@ app.post('/chat', async (req, res) => {
         const completion = await openai.chat.completions.create({
             model: "gpt-3.5-turbo",
             messages: chatHistory.flat(),
-            stream: true,
         });
 
-        let botResponse = '';
-
-        for await (const chunk of completion) {
-            if (isDesiredFormat(chunk)) {
-                const content = chunk.choices[0].delta.content;
-                botResponse += content; // Mengumpulkan semua data dengan delta.content
-                console.log(content); // Hanya tampilkan data dengan format yang diinginkan
-            }
-        }
+        let botResponse = completion.choices[0].message.content;
+        console.log(completion.choices[0].message.content);
 
         // Menghapus spasi di awal dan akhir dari botResponse
         botResponse = botResponse.trim();

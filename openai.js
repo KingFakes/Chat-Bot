@@ -1,12 +1,10 @@
 import axios from 'axios';
-
 let data = JSON.stringify({
     "model": "gpt-3.5-turbo",
     "messages": [{
         "role": "user",
         "content": "3 kata kerja"
     }],
-    "stream": true,
     "temperature": 0.5,
     "max_tokens": 256
 });
@@ -24,14 +22,9 @@ let config = {
 
 axios.request(config)
     .then((response) => {
-        const choices = response.data.choices;
-        if (Array.isArray(choices)) {
-            for (const choice of choices) {
-                if (choice.delta && choice.delta.content) {
-                    console.log(choice.delta.content);
-                }
-            }
-        }
+        const datas = response.data.choices[0].message.content
+        
+        console.log(datas);
     })
     .catch((error) => {
         console.log(error);

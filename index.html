@@ -8,6 +8,17 @@
     <link rel="shortcut icon" href="https://dicodingbot.site/img/logo.png" type="image/png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        textarea {
+            resize: none;
+            /* Untuk mencegah pengguna meresize textarea */
+            overflow-y: hidden;
+            /* Menghilangkan scrollbar vertikal */
+            border: none;
+            /* Menghilangkan border */
+            padding: 0;
+            /* Menghilangkan padding */
+        }
+
         #chat-box {
             margin-bottom: 100px;
             min-height: 80vh;
@@ -45,7 +56,8 @@
         <div class="container">
             <div class="row py-3">
                 <div class="col-lg-9 col-md-8 col-12">
-                    <input type="text" id="user-input" class="form-control" placeholder="Type a message...">
+                    <textarea id="user-input" class="form-control" placeholder="Type a message..." rows="1"
+                        oninput="autoResize(this)"></textarea>
                 </div>
                 <div class="col-lg-3 col-md-4 col-12 text-center mt-2 mt-md-0">
                     <button onclick="sendMessage()" class="btn btn-primary">Send</button>
@@ -55,40 +67,34 @@
         </div>
     </div>
     <script>
+        function autoResize(textarea) {
+            const maxRows = 3; // Jumlah maksimum baris
+            const lineHeight = 20; // Tinggi satu baris dalam pixel (sesuaikan sesuai kebutuhan)
+
+            const rows = textarea.value.split('\n').length;
+            if (rows <= maxRows) {
+                textarea.rows = rows;
+            } else {
+                textarea.rows = maxRows;
+            }
+            textarea.style.height = `${textarea.rows * lineHeight}px`;
+        }
+
         function typeEffect(element, text, speed) {
             let i = 0;
             const typingInterval = setInterval(() => {
-                if (i < text.length) {
-                    if (text[i] === '`') {
-                        // Temukan tanda `
-                        let codeBlock = '';
-                        i++; // Lewati tanda `
-                        while (i < text.length && text[i] !== '`') {
-                            codeBlock += text[i];
-                            i++;
-                        }
-                        // Tambahkan teks dalam card ke dalam elemen
-                        element.innerText += `
-                    <div class="card mb-3">
-                        <div class="card-header bg-info text-white">Code Block</div>
-                        <div class="card-body">
-                            <pre>${codeBlock}</pre>
-                        </div>
-                    </div>`;
-                        i++; // Lewati tanda `
-                    } else {
+                    if (i < text.length) {
                         element.innerHTML += text.charAt(i);
                         i++;
+                    } else {
+                        clearInterval(typingInterval);
+                        setTimeout(() => {
+                            element.classList.remove('typing-effect'); // Hilangkan efek mengetik
+                        }, 500); // Waktu tunggu sebelum menghapus efek (dalam milidetik)
                     }
-                } else {
-                    clearInterval(typingInterval);
-                    setTimeout(() => {
-                        element.classList.remove('typing-effect'); // Hilangkan efek mengetik
-                    }, 500); // Waktu tunggu sebelum menghapus efek (dalam milidetik)
-                }
-            }, speed);
+                },
+                speed);
         }
-
 
         async function sendMessage() {
             const userMessage = document.getElementById('user-input').value;
@@ -105,16 +111,19 @@
             <div class="card-body bg-light-subtle">
                 ${userMessage}
             </div>
-        </div>
+        </div>`;
+            setTimeout(() => {
+                chatBox.innerHTML += `
         <div class="card mb-3">
             <div class="card-header bg-success">
                 <span class="fw-bold fs-5 text-white">Bot </span> <img
                     src="https://static.vecteezy.com/system/resources/previews/014/194/216/non_2x/avatar-icon-human-a-person-s-badge-social-media-profile-symbol-the-symbol-of-a-person-vector.jpg"
                     class="rounded-circle" width="50" height="50">
             </div>
-            <div class="card-body bg-success-subtle typing-effect" id="jawaban-${uniqueResponseId}">
+             <div class="card-body bg-success-subtle typing-effect" id="jawaban-${uniqueResponseId}">
             </div>
         </div>`;
+            }, 1000)
 
             const response = await fetch('https://chat.dicodingbot.site/chat', {
                 method: 'POST',
