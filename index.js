@@ -72,16 +72,6 @@ app.post('/clear', (req, res) => {
     });
 });
 
-function isDesiredFormat(chunk) {
-    // Memeriksa apakah objek chunk memiliki format yang diinginkan
-    return (
-        chunk.object === "chat.completion.chunk" &&
-        chunk.choices &&
-        chunk.choices[0] &&
-        chunk.choices[0].delta &&
-        chunk.choices[0].delta.content
-    );
-}
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);

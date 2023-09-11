@@ -23,7 +23,7 @@ let config = {
 axios.request(config)
     .then((response) => {
         const datas = response.data.choices[0].message.content
-        
+
         console.log(datas);
     })
     .catch((error) => {
