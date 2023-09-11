@@ -97,7 +97,7 @@
             </div>
         </div>`;
 
-        const response = await fetch('http://localhost:3000/chat', {
+        const response = await fetch('https://chat.dicodingbot.site/chat', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',
@@ -120,7 +120,7 @@
 
             // Melakukan permintaan fetch untuk membersihkan chat history pada server
             try {
-                const response = await fetch('http://localhost:3000/clear', {
+                const response = await fetch('https://chat.dicodingbot.site/clear', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
