@@ -58,27 +58,46 @@
         function typeEffect(element, text, speed) {
             let i = 0;
             const typingInterval = setInterval(() => {
-                    if (i < text.length) {
+                if (i < text.length) {
+                    if (text[i] === '`') {
+                        // Temukan tanda `
+                        let codeBlock = '';
+                        i++; // Lewati tanda `
+                        while (i < text.length && text[i] !== '`') {
+                            codeBlock += text[i];
+                            i++;
+                        }
+                        // Tambahkan teks dalam card ke dalam elemen
+                        element.innerText += `
+                    <div class="card mb-3">
+                        <div class="card-header bg-info text-white">Code Block</div>
+                        <div class="card-body">
+                            <pre>${codeBlock}</pre>
+                        </div>
+                    </div>`;
+                        i++; // Lewati tanda `
+                    } else {
                         element.innerHTML += text.charAt(i);
                         i++;
-                    } else {
-                        clearInterval(typingInterval);
-                        setTimeout(() => {
-                            element.classList.remove('typing-effect'); // Hilangkan efek mengetik
-                        }, 500); // Waktu tunggu sebelum menghapus efek (dalam milidetik)
                     }
-                },
-                speed);
+                } else {
+                    clearInterval(typingInterval);
+                    setTimeout(() => {
+                        element.classList.remove('typing-effect'); // Hilangkan efek mengetik
+                    }, 500); // Waktu tunggu sebelum menghapus efek (dalam milidetik)
+                }
+            }, speed);
         }
 
+
         async function sendMessage() {
-        const userMessage = document.getElementById('user-input').value;
-        const chatBox = document.getElementById('chat-box');
+            const userMessage = document.getElementById('user-input').value;
+            const chatBox = document.getElementById('chat-box');
 
-        // Tambahkan atribut unik untuk elemen jawaban
-        const uniqueResponseId = Date.now(); // Anda dapat menggunakan metode lain untuk membuat ID unik
+            // Tambahkan atribut unik untuk elemen jawaban
+            const uniqueResponseId = Date.now(); // Anda dapat menggunakan metode lain untuk membuat ID unik
 
-        chatBox.innerHTML += `<div class="card mb-3">
+            chatBox.innerHTML += `<div class="card mb-3">
             <div class="card-header text-end bg-dark-subtle">
                 <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0cqPHAdnAIqzYvcH7lolCkguuEfL6yxtVuRIu27rN2SLX9qpqeaTlpJ7vdcLBSm-r3Qc&usqp=CAU"
                     class="rounded-circle" width="50" height="50"> <span class="fw-bold fs-5">User</span>
@@ -97,21 +116,21 @@
             </div>
         </div>`;
 
-        const response = await fetch('https://chat.dicodingbot.site/chat', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-        message: userMessage,
-        responseId: uniqueResponseId, // Kirim ID unik sebagai bagian dari permintaan
-        }),
-        });
+            const response = await fetch('https://chat.dicodingbot.site/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userMessage,
+                    responseId: uniqueResponseId, // Kirim ID unik sebagai bagian dari permintaan
+                }),
+            });
 
-        const data = await response.json();
-        const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
-        typeEffect(jawabanelement, data.response, 20);
-        document.getElementById('user-input').value = '';
+            const data = await response.json();
+            const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
+            typeEffect(jawabanelement, data.response, 20);
+            document.getElementById('user-input').value = '';
         }
 
         async function clearChat() {
