@@ -72,45 +72,46 @@
         }
 
         async function sendMessage() {
-            const userMessage = document.getElementById('user-input').value;
-            const chatBox = document.getElementById('chat-box');
+        const userMessage = document.getElementById('user-input').value;
+        const chatBox = document.getElementById('chat-box');
 
-            chatBox.innerHTML += `<div class="card mb-3">
-                  <div class="card-header text-end bg-dark-subtle">
-                          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0cqPHAdnAIqzYvcH7lolCkguuEfL6yxtVuRIu27rN2SLX9qpqeaTlpJ7vdcLBSm-r3Qc&usqp=CAU"
-                              class="rounded-circle" width="50" heigth="50"> <span class="fw-bold fs-5">User</span>
-                  </div>
-                <div class="card-body bg-light-subtle">
-                  ${userMessage}
-                </div>
+        // Tambahkan atribut unik untuk elemen jawaban
+        const uniqueResponseId = Date.now(); // Anda dapat menggunakan metode lain untuk membuat ID unik
+
+        chatBox.innerHTML += `<div class="card mb-3">
+            <div class="card-header text-end bg-dark-subtle">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS0cqPHAdnAIqzYvcH7lolCkguuEfL6yxtVuRIu27rN2SLX9qpqeaTlpJ7vdcLBSm-r3Qc&usqp=CAU"
+                    class="rounded-circle" width="50" height="50"> <span class="fw-bold fs-5">User</span>
             </div>
-        `;
-            setTimeout(() => {
-                chatBox.innerHTML += `
-<div class="card mb-3">
-    <div class="card-header bg-success">
-        <span class="fw-bold fs-5 text-white">Bot </span> <img
-            src="https://static.vecteezy.com/system/resources/previews/014/194/216/non_2x/avatar-icon-human-a-person-s-badge-social-media-profile-symbol-the-symbol-of-a-person-vector.jpg"
-            class="rounded-circle" width="50" height="50">
-    </div>
-    <div class="card-body bg-success-subtle typing-effect" id="jawaban">
-    </div>
-</div>`;
-            }, 1000)
-            const response = await fetch('http://localhost:3000/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: userMessage
-                }),
-            });
+            <div class="card-body bg-light-subtle">
+                ${userMessage}
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header bg-success">
+                <span class="fw-bold fs-5 text-white">Bot </span> <img
+                    src="https://static.vecteezy.com/system/resources/previews/014/194/216/non_2x/avatar-icon-human-a-person-s-badge-social-media-profile-symbol-the-symbol-of-a-person-vector.jpg"
+                    class="rounded-circle" width="50" height="50">
+            </div>
+            <div class="card-body bg-success-subtle typing-effect" id="jawaban-${uniqueResponseId}">
+            </div>
+        </div>`;
 
-            const data = await response.json();
-            const jawabanelement = document.getElementById('jawaban');
-            typeEffect(jawabanelement, data.response, 20);
-            document.getElementById('user-input').value = '';
+        const response = await fetch('http://localhost:3000/chat', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+        message: userMessage,
+        responseId: uniqueResponseId, // Kirim ID unik sebagai bagian dari permintaan
+        }),
+        });
+
+        const data = await response.json();
+        const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
+        typeEffect(jawabanelement, data.response, 20);
+        document.getElementById('user-input').value = '';
         }
 
         async function clearChat() {
