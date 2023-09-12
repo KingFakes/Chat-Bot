@@ -61,8 +61,21 @@
         <div class="container">
             <div class="row py-3">
                 <div class="col-md-9 col-12">
-                    <textarea id="user-input" class="form-control" placeholder="Type a message..." rows="1"
-                        oninput="autoResize(this)"></textarea>
+                    <div class="input-group">
+                        <div class="col-auto">
+                            <select class="form-select" id="select-mode" style="width: 90%;">
+                                <option selected disabled>Mode</option>
+                                <option value="chat">Chat</option>
+                                <option value="picture">Picture</option>
+                            </select>
+                        </div>
+                        <div class="col-10 pt-md-0 pt-sm-2 ">
+                            <textarea id="user-input" class="form-control" placeholder="Type a message..." rows="1"
+                                oninput="autoResize(this)"></textarea>
+                        </div>
+
+                    </div>
+
                 </div>
                 <div class="col-md-3 col-12 text-center mt-2 mt-md-0">
                     <button onclick="sendMessage()" class="btn btn-primary"><i class="bi bi-send-fill"></i></button>
@@ -75,6 +88,8 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js">
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/recorderjs/0.1.0/recorder.js"></script>
     <script>
         let mediaRecorder;
@@ -193,7 +208,7 @@
         async function sendMessage() {
             const userMessage = document.getElementById('user-input').value;
             const chatBox = document.getElementById('chat-box');
-
+            const selectedMode = document.getElementById('select-mode').value;
             // Tambahkan atribut unik untuk elemen jawaban
             const uniqueResponseId = Date.now(); // Anda dapat menggunakan metode lain untuk membuat ID unik
 
@@ -219,20 +234,40 @@
         </div>`;
             }, 1000)
 
-            const response = await fetch('https://chat.dicodingbot.site/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    message: userMessage,
-                }),
-            });
+            if (selectedMode === 'chat') {
+                const response = await fetch('https://chat.dicodingbot.site/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                    }),
+                });
 
-            const data = await response.json();
-            const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
-            typeEffect(jawabanelement, data.response, 20);
-            document.getElementById('user-input').value = '';
+                const data = await response.json();
+                const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
+                typeEffect(jawabanelement, data.response, 20);
+                document.getElementById('user-input').value = '';
+            } else if (selectedMode === 'picture') {
+                const response = await fetch('https://chat.dicodingbot.site/images', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: userMessage,
+                    }),
+                });
+
+                const data = await response.json();
+                const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
+                jawabanelement = `<img src="${data.response}" class="img-thumbnail" alt="${userMessage}">`
+                document.getElementById('user-input').value = '';
+            }
+
+
+
         }
 
         async function clearChat() {

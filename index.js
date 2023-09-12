@@ -1,5 +1,4 @@
 import express from 'express';
-import fileUpload from 'express-fileupload';
 import {
     fileURLToPath
 } from 'url'; // Import fileURLToPath
@@ -13,9 +12,6 @@ import {
     OpenAI
 } from 'openai';
 
-
-
-
 dotenv.config();
 
 const app = express();
@@ -26,7 +22,7 @@ const openai = new OpenAI({
 });
 app.use(cors());
 app.use(express.json());
-app.use(fileUpload());
+
 // Menggunakan import.meta.url dan fileURLToPath untuk mengakses __dirname
 const __filename = fileURLToPath(
     import.meta.url);
@@ -42,52 +38,6 @@ const upload = multer({
     storage
 });
 
-const publicFolderPath = path.join(__dirname, 'public', 'audio');
-
-fs.readdir(publicFolderPath, (err, files) => {
-    if (err) {
-        console.error('Error reading directory:', err);
-        return;
-    }
-
-    console.log('List of files in the public folder:');
-    files.forEach(file => {
-        console.log(file);
-    });
-});
-app.get('/list-files', (req, res) => {
-    fs.readdir(publicFolderPath, (err, files) => {
-        if (err) {
-            console.error('Error reading directory:', err);
-            return res.status(500).json({
-                error: 'Internal Server Error'
-            });
-        }
-
-        res.json({
-            files
-        });
-    });
-});
-
-app.post('/upload', (req, res) => {
-    if (!req.files || Object.keys(req.files).length === 0) {
-        return res.status(400).send('Tidak ada file yang diunggah.');
-    }
-
-    // Dapatkan file dari req.files
-    const file = req.files.sampleFile;
-
-    // Simpan file ke direktori yang Anda inginkan
-    file.mv(`public/${file.name}`, (err) => {
-        if (err) {
-            return res.status(500).send(err);
-        }
-
-        res.send('File audio berhasil diunggah.');
-    });
-});
-
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/audio', upload.single('audio'), async (req, res) => {
@@ -96,7 +46,7 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
             error: 'No audio file uploaded'
         });
     }
-    res.header('Access-Control-Allow-Origin', '*');
+
     // Simpan file audio yang diunggah
     const audioBuffer = req.file.buffer;
     const audioFileName = `voice_message_${Date.now()}.wav`;
@@ -144,7 +94,7 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
             }]);
 
             console.log(chatHistory);
-
+            fs.unlinkSync(mp3FilePath);
             res.json({
                 response: botResponse
             });
@@ -158,6 +108,29 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
             });
         })
         .save(mp3FilePath);
+});
+
+app.post('/images', async (req, res) => {
+    const userMessage = req.body.message;
+    try {
+        const image = await openai.images.generate({
+            prompt: userMessage
+        });
+
+        console.log(image.data);
+
+
+        let botResponse = image.data;
+
+        res.json({
+            response: botResponse
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({
+            error: 'An error occurred'
+        });
+    }
 });
 
 
