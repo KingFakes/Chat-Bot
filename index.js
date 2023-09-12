@@ -5,6 +5,9 @@ import {
 import * as path from 'path'; // Import path
 import * as dotenv from 'dotenv';
 import cors from 'cors';
+import multer from 'multer';
+import ffmpeg from 'fluent-ffmpeg';
+import fs from 'fs';
 import {
     OpenAI
 } from 'openai';
@@ -28,6 +31,84 @@ const __dirname = path.dirname(__filename);
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html')); // Menggunakan path.join untuk menggabungkan __dirname dengan path ke index.html
 });
+
+// Konfigurasi multer untuk menangani file audio
+const storage = multer.memoryStorage(); // Simpan file dalam memori
+const upload = multer({
+    storage
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.post('/audio', upload.single('audio'), async (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({
+            error: 'No audio file uploaded'
+        });
+    }
+
+    // Simpan file audio yang diunggah
+    const audioBuffer = req.file.buffer;
+    const audioFileName = `voice_message_${Date.now()}.wav`;
+    const audioFilePath = path.join(__dirname, 'public', 'audio', audioFileName);
+
+    fs.writeFileSync(audioFilePath, audioBuffer);
+
+    // Konversi file audio ke format MP3
+    const mp3FileName = audioFileName.replace('.wav', '.mp3');
+    const mp3FilePath = path.join(__dirname, 'public', 'audio', mp3FileName);
+
+    ffmpeg()
+        .input(audioFilePath)
+        .toFormat('mp3')
+        .on('end', async () => {
+            fs.unlinkSync(audioFilePath);
+            const transcription = await openai.audio.transcriptions.create({
+                file: fs.createReadStream(mp3FilePath),
+                model: 'whisper-1',
+            });
+
+            console.log('Transkripsi Teks:');
+            console.log(transcription.text);
+            const transcriptionText = transcription.text;
+            const userMessage = transcriptionText;
+            const messages = [{
+                "role": "user",
+                "content": userMessage
+            }];
+            chatHistory.push(messages);
+            const completion = await openai.chat.completions.create({
+                model: "gpt-3.5-turbo",
+                messages: chatHistory.flat(),
+            });
+
+            let botResponse = completion.choices[0].message.content;
+            console.log(completion.choices[0].message.content);
+
+            // Menghapus spasi di awal dan akhir dari botResponse
+            botResponse = botResponse.trim();
+            chatHistory.push([{
+                "role": "assistant",
+                "content": botResponse
+            }]);
+
+            console.log(chatHistory);
+            fs.unlinkSync(mp3FilePath);
+            res.json({
+                response: botResponse
+            });
+
+
+        })
+        .on('error', (err) => {
+            console.error('Error:', err);
+            res.status(500).json({
+                error: 'Terjadi kesalahan saat konversi audio'
+            });
+        })
+        .save(mp3FilePath);
+});
+
 
 const chatHistory = [];
 app.post('/chat', async (req, res) => {
