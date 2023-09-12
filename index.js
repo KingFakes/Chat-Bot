@@ -38,7 +38,7 @@ const upload = multer({
     storage
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '/')));
 
 app.post('/audio', upload.single('audio'), async (req, res) => {
     if (!req.file) {
@@ -50,13 +50,13 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
     // Simpan file audio yang diunggah
     const audioBuffer = req.file.buffer;
     const audioFileName = `voice_message_${Date.now()}.wav`;
-    const audioFilePath = path.join(__dirname, 'public', 'audio', audioFileName);
+    const audioFilePath = path.join(__dirname, '/', audioFileName);
 
     fs.writeFileSync(audioFilePath, audioBuffer);
 
     // Konversi file audio ke format MP3
     const mp3FileName = audioFileName.replace('.wav', '.mp3');
-    const mp3FilePath = path.join(__dirname, 'public', 'audio', mp3FileName);
+    const mp3FilePath = path.join(__dirname, '/', mp3FileName);
 
     ffmpeg()
         .input(audioFilePath)
