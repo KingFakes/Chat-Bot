@@ -38,8 +38,6 @@ const upload = multer({
     storage
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.post('/audio', upload.single('audio'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({
@@ -47,23 +45,22 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
         });
     }
 
-    // Simpan file audio yang diunggah
+    // Simpan file audio yang diunggah ke direktori yang diinginkan
     const audioBuffer = req.file.buffer;
     const audioFileName = `voice_message_${Date.now()}.wav`;
-    const audioFilePath = path.join(__dirname, 'public', 'audio', audioFileName);
+    const audioFilePath = path.join(__dirname, audioFileName); // Simpan di direktori yang diinginkan
 
     fs.writeFileSync(audioFilePath, audioBuffer);
 
     // Konversi file audio ke format MP3
     const mp3FileName = audioFileName.replace('.wav', '.mp3');
-    const mp3FilePath = path.join(__dirname, 'public', 'audio', mp3FileName);
+    const mp3FilePath = path.join(__dirname, mp3FileName); // Simpan di direktori yang diinginkan
 
     ffmpeg()
         .input(audioFilePath)
         .toFormat('mp3')
         .on('end', async () => {
-
-            fs.unlinkSync(audioFilePath);
+            fs.unlinkSync(audioFilePath); // Hapus file WAV setelah konversi selesai
             const transcription = await openai.audio.transcriptions.create({
                 file: fs.createReadStream(mp3FilePath),
                 model: 'whisper-1',
@@ -94,12 +91,10 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
             }]);
 
             console.log(chatHistory);
-            fs.unlinkSync(mp3FilePath);
+            // Hapus file MP3 setelah selesai
             res.json({
                 response: botResponse
             });
-
-
         })
         .on('error', (err) => {
             console.error('Error:', err);
@@ -109,6 +104,7 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
         })
         .save(mp3FilePath);
 });
+
 
 
 const chatHistory = [];
