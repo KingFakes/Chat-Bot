@@ -610,7 +610,7 @@
 
                 // Create an outgoing chat div with user's message and append it to chat container
                 const outgoingChatDiv = createChatElement(html, "outgoing");
-                chatContainer.querySelector(".default-text") ?.remove();
+                chatContainer.querySelector(".default-text")?.remove();
                 chatContainer.appendChild(outgoingChatDiv);
                 chatContainer.scrollTo(0, chatContainer.scrollHeight);
                 setTimeout(showTypingAnimation, 500);
@@ -653,48 +653,43 @@
 
             // Fungsi untuk menyimpan status tema ke Local Storage
             function saveThemeToLocalStorage(isDarkMode) {
-            localStorage.setItem("isDarkMode", isDarkMode);
+                localStorage.setItem("isDarkMode", isDarkMode);
             }
 
             // Fungsi untuk memeriksa apakah tema dalam keadaan gelap
             function checkDarkMode() {
-            const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            return prefersDarkMode || document.body.classList.contains("light-mode");
+                const prefersDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                return prefersDarkMode || document.body.classList.contains("light-mode");
             }
 
             // Fungsi untuk mengatur tema berdasarkan status terakhir yang disimpan di Local Storage
             function setThemeFromLocalStorage() {
-            const isDarkMode = localStorage.getItem("isDarkMode") === "true";
-            if (isDarkMode) {
-            themeButton.innerText = "dark_mode";
-            document.body.classList.add("dark-mode");
-            } else{
-                 themeButton.innerText = "light_mode";
-                 document.body.classList.add("light-mode");
+                const isDarkMode = localStorage.getItem("isDarkMode") === "true";
+                if (isDarkMode) {
+                    themeButton.innerText = "dark_mode";
+                    document.body.classList.add("dark-mode");
+                } else {
+                    themeButton.innerText = "light_mode";
+                    document.body.classList.add("light-mode");
+                }
             }
-            }
-
-            // Saat halaman dimuat, atur tema berdasarkan status terakhir dari Local Storage
-            window.addEventListener("load", () => {
-            setThemeFromLocalStorage();
-            });
 
             // Saat tombol tema diklik
             themeButton.addEventListener("click", () => {
-            // Toggle body's class for the theme mode
-            document.body.classList.toggle("light-mode");
+                // Toggle body's class for the theme mode
+                document.body.classList.toggle("light-mode");
 
-            // Simpan status tema ke Local Storage
-            const isDarkMode = !document.body.classList.contains("light-mode");
-            saveThemeToLocalStorage(isDarkMode);
+                // Simpan status tema ke Local Storage
+                const isDarkMode = !document.body.classList.contains("light-mode");
+                saveThemeToLocalStorage(isDarkMode);
 
-            // Ganti teks tombol tema
-            themeButton.innerText = isDarkMode ? "dark_mode" : "light_mode";
+                // Ganti teks tombol tema
+                themeButton.innerText = isDarkMode ? "dark_mode" : "light_mode";
             });
 
             // Panggil fungsi checkDarkMode untuk mengatur tema saat halaman dimuat
             if (checkDarkMode()) {
-            themeButton.innerText = "dark_mode";
+                themeButton.innerText = "dark_mode";
             }
 
 
@@ -742,6 +737,7 @@
 
             // Cek Local Storage saat halaman dimuat
             window.addEventListener("load", () => {
+                setThemeFromLocalStorage();
                 localStorage.setItem("selectedOption", "Chat");
                 const storedOption = localStorage.getItem("selectedOption");
                 if (storedOption === "Chat") {
