@@ -132,7 +132,7 @@
                         const formData = new FormData();
                         formData.append('audio', audioBlob, 'voice_message.wav');
 
-                        fetch('https://chat.dicodingbot.site/audio', {
+                        fetch('http://localhost:3000/audio', {
                                 method: 'POST',
                                 body: formData
                             })
