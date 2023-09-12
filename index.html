@@ -134,6 +134,9 @@
 
                         fetch('https://chat.dicodingbot.site/audio', {
                                 method: 'POST',
+                                headers: {
+                                    'Content-Type': 'multipart/form-data'
+                                },
                                 body: formData
                             })
                             .then(response => response.json())
