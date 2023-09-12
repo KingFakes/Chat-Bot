@@ -74,7 +74,7 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
             error: 'No audio file uploaded'
         });
     }
-
+    res.header('Access-Control-Allow-Origin', '*');
     // Simpan file audio yang diunggah
     const audioBuffer = req.file.buffer;
     const audioFileName = `voice_message_${Date.now()}.wav`;
