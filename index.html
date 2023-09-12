@@ -272,6 +272,11 @@
             background: var(--icon-hover-bg);
         }
 
+        .img-api {
+            width: 25rem !important;
+            height: 25rem !important;
+        }
+
         /* Reponsive Media Query */
         @media screen and (max-width: 600px) {
             .default-text h1 {
@@ -317,6 +322,64 @@
             span.material-symbols-rounded {
                 font-size: 1.25rem !important;
             }
+
+            .custom-dropdown.show {
+                bottom: 5rem !important;
+            }
+
+            .img-api {
+                width: 18rem !important;
+                height: 18rem !important;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            .img-api {
+                width: 11rem !important;
+                height: 11rem !important;
+            }
+        }
+
+        /* Style for the custom select */
+        .custom-select {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            border: 1px solid var(--incoming-chat-border);
+            background: var(--incoming-chat-bg);
+            color: var(--text-color);
+            padding: 10px 10px;
+            border-radius: 4px;
+            font-size: 1rem;
+            user-select: none;
+            margin-left: 7px;
+        }
+
+
+        .custom-select.active {
+            border: 1px solid var(--icon-color);
+        }
+
+        /* CSS */
+        .custom-dropdown {
+            position: absolute;
+            display: none;
+            background-color: var(--incoming-chat-bg);
+            border: 1px solid var(--incoming-chat-border);
+            border-radius: 4px;
+            z-index: 2;
+        }
+
+        .custom-dropdown div {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .custom-dropdown.show {
+            display: block;
+            bottom: 6.5rem;
+            color: var(--text-color);
         }
     </style>
 </head>
@@ -328,6 +391,13 @@
     <!-- Typing container -->
     <div class="typing-container">
         <div class="typing-content">
+            <span id="option-btn" class="material-symbols-rounded">
+                more_vert
+            </span>
+            <div id="dropdown-content" class="custom-dropdown">
+                <div>Chat</div>
+                <div>Picture</div>
+            </div>
             <div class="typing-textarea">
                 <textarea id="chat-input" spellcheck="false" placeholder="Enter a prompt here" required></textarea>
                 <span id="send-btn" class="material-symbols-rounded">send</span>
@@ -335,9 +405,12 @@
             <div class="typing-controls">
                 <span id="theme-btn" class="material-symbols-rounded">light_mode</span>
                 <span id="delete-btn" class="material-symbols-rounded">delete</span>
+
             </div>
         </div>
         <script>
+            const optionButton = document.getElementById("option-btn");
+            const dropdownContent = document.getElementById("dropdown-content");
             const chatInput = document.querySelector("#chat-input");
             const sendButton = document.querySelector("#send-btn");
             const chatContainer = document.querySelector(".chat-container");
@@ -377,29 +450,50 @@
                     userId = Math.floor(Math.random() * 1000000); // Nilai acak sebagai userId
                     localStorage.setItem('userId', userId);
                 }
+                const storedOption = localStorage.getItem("selectedOption");
+                if (storedOption === "Chat") {
+                    try {
+                        const response = await fetch('https://chat.dicodingbot.site/chat', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: userText,
+                                userId: userId
+                            }),
+                        });
 
-                // Send POST request to API, get response and set the reponse as paragraph element text
-                try {
-                    const response = await fetch('https://chat.dicodingbot.site/chat', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            message: userText,
-                            userId: userId
-                        }),
-                    });
+                        const data = await response.json();
+                        pElement.textContent = data.response.trim();
+                    } catch (error) { // Add error class to the paragraph element and set error text
+                        pElement.classList.add("error");
+                        pElement.textContent =
+                            "Oops! Something went wrong while retrieving the response. Please try again.";
+                    }
 
-                    const data = await response.json();
-                    pElement.textContent = data.response.trim();
-                } catch (error) { // Add error class to the paragraph element and set error text
-                    pElement.classList.add("error");
-                    pElement.textContent =
-                        "Oops! Something went wrong while retrieving the response. Please try again.";
+                } else if (storedOption === "Picture") {
+                    try {
+                        const response = await fetch('https://chat.dicodingbot.site/images', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                message: userText,
+                            }),
+                        });
+
+                        const data = await response.json();
+                        pElement.innerHTML = `<img src="${data.response}" class="img-thumbnail img-api"
+                             alt="${userText}">`
+                    } catch (error) { // Add error class to the paragraph element and set error text
+                        pElement.classList.add("error");
+                        pElement.textContent =
+                            "Oops! Something went wrong while retrieving the response. Please try again.";
+                    }
+
                 }
-
-                // Remove the typing animation, append the paragraph element and save the chats to local storage
                 incomingChatDiv.querySelector(".typing-animation").remove();
                 incomingChatDiv.querySelector(".chat-details").appendChild(pElement);
                 localStorage.setItem("all-chats", chatContainer.innerHTML);
@@ -467,7 +561,7 @@
                     clearChat()
                 }
             });
-            async function clearChat() {            
+            async function clearChat() {
                 let userId = localStorage.getItem('userId');
                 try {
                     const response = await fetch('https://chat.dicodingbot.site/clear', {
@@ -515,6 +609,46 @@
 
             loadDataFromLocalstorage();
             sendButton.addEventListener("click", handleOutgoingChat);
+
+            function addToLocalStorage(selectedOption) {
+                localStorage.setItem("selectedOption", selectedOption);
+            }
+
+            optionButton.addEventListener("click", () => {
+                dropdownContent.classList.toggle("show");
+            });
+
+            dropdownContent.addEventListener("click", (event) => {
+                if (event.target.tagName === "DIV") {
+                    const selectedOption = event.target.textContent;
+                    addToLocalStorage(selectedOption);
+                    if (selectedOption === "Picture") {
+                        chatInput.placeholder = "Enter a prompt for picture here";
+                    } else if (selectedOption === "Chat") {
+                        // Kembalikan placeholder ke nilai default jika opsi lain dipilih
+                        chatInput.placeholder = "Enter a prompt here";
+                    }
+                    dropdownContent.classList.remove("show");
+                }
+            });
+
+            // Cek Local Storage saat halaman dimuat
+            window.addEventListener("load", () => {
+                localStorage.setItem("selectedOption", "Chat");
+                const storedOption = localStorage.getItem("selectedOption");
+                if (storedOption === "Chat") {
+                    chatInput.placeholder = "Enter a prompt here";
+                } else if (storedOption === "Picture") {
+                    chatInput.placeholder = "Enter a prompt for picture here";
+                }
+            });
+
+            // Close the dropdown if the user clicks outside of it
+            document.addEventListener("click", (event) => {
+                if (!optionButton.contains(event.target) && !dropdownContent.contains(event.target)) {
+                    dropdownContent.classList.remove("show");
+                }
+            });
         </script>
 </body>
 
