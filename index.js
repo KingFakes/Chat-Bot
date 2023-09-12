@@ -117,10 +117,10 @@ app.post('/images', async (req, res) => {
             prompt: userMessage
         });
 
-        console.log(image.data);
+        console.log(image.data[0].url);
 
 
-        let botResponse = image.data;
+        let botResponse = image.data[0].url;
 
         res.json({
             response: botResponse
