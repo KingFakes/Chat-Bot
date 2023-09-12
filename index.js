@@ -20,9 +20,7 @@ const port = process.env.PORT || 3000;
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
-app.use(cors({
-    origin: 'https://chat.dicodingbot.site'
-}));
+app.use(cors());
 app.use(express.json());
 
 // Menggunakan import.meta.url dan fileURLToPath untuk mengakses __dirname
@@ -40,6 +38,36 @@ const upload = multer({
     storage
 });
 
+const publicFolderPath = path.join(__dirname, 'public', 'audio');
+
+fs.readdir(publicFolderPath, (err, files) => {
+    if (err) {
+        console.error('Error reading directory:', err);
+        return;
+    }
+
+    console.log('List of files in the public folder:');
+    files.forEach(file => {
+        console.log(file);
+    });
+});
+app.get('/list-files', (req, res) => {
+    fs.readdir(publicFolderPath, (err, files) => {
+        if (err) {
+            console.error('Error reading directory:', err);
+            return res.status(500).json({
+                error: 'Internal Server Error'
+            });
+        }
+
+        res.json({
+            files
+        });
+    });
+});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.post('/audio', upload.single('audio'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({
@@ -47,22 +75,23 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
         });
     }
 
-    // Simpan file audio yang diunggah ke direktori yang diinginkan
+    // Simpan file audio yang diunggah
     const audioBuffer = req.file.buffer;
     const audioFileName = `voice_message_${Date.now()}.wav`;
-    const audioFilePath = path.join(__dirname, audioFileName); // Simpan di direktori yang diinginkan
+    const audioFilePath = path.join(__dirname, 'public', 'audio', audioFileName);
 
     fs.writeFileSync(audioFilePath, audioBuffer);
 
     // Konversi file audio ke format MP3
     const mp3FileName = audioFileName.replace('.wav', '.mp3');
-    const mp3FilePath = path.join(__dirname, mp3FileName); // Simpan di direktori yang diinginkan
+    const mp3FilePath = path.join(__dirname, 'public', 'audio', mp3FileName);
 
     ffmpeg()
         .input(audioFilePath)
         .toFormat('mp3')
         .on('end', async () => {
-            fs.unlinkSync(audioFilePath); // Hapus file WAV setelah konversi selesai
+
+            fs.unlinkSync(audioFilePath);
             const transcription = await openai.audio.transcriptions.create({
                 file: fs.createReadStream(mp3FilePath),
                 model: 'whisper-1',
@@ -93,10 +122,12 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
             }]);
 
             console.log(chatHistory);
-            // Hapus file MP3 setelah selesai
+
             res.json({
                 response: botResponse
             });
+
+
         })
         .on('error', (err) => {
             console.error('Error:', err);
@@ -106,7 +137,6 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
         })
         .save(mp3FilePath);
 });
-
 
 
 const chatHistory = [];
