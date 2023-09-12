@@ -134,20 +134,22 @@
 
                         fetch('https://chat.dicodingbot.site/audio', {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: formData,
+                                body: formData
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok');
+                                }
+                                return response.json(); // Coba parse sebagai JSON
+                            })
                             .then(data => {
-                                const jawabanelement = document.getElementById(
-                                    `jawaban-${uniqueResponseId}`);
-                                typeEffect(jawabanelement, data.response, 20);
+                                // Tangani data JSON yang berhasil di-parse
+                                console.log(data);
                             })
                             .catch(error => {
                                 console.error('Error:', error);
                             });
+
                     }
                     mediaRecorder.start();
                 })
