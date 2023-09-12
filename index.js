@@ -132,36 +132,49 @@ app.post('/images', async (req, res) => {
         });
     }
 });
-
+function findUserHistory(userId) {
+    return chatHistory.find(entry => entry.idUser === userId);
+}
 
 const chatHistory = [];
+
 app.post('/chat', async (req, res) => {
     const userMessage = req.body.message;
+    const userId = req.body.userId; // Mengambil userId dari req.body
+
     try {
-        const messages = [{
+        let userHistory = findUserHistory(userId);
+
+        if (!userHistory) {
+            userHistory = {
+                idUser: userId,
+                messsageUser: []
+            };
+            chatHistory.push(userHistory);
+        }
+
+        userHistory.messsageUser.push({
             "role": "user",
             "content": userMessage
-        }];
-        chatHistory.push(messages);
-        const completion = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",
-            messages: chatHistory.flat(),
         });
 
-        let botResponse = completion.choices[0].message.content;
-        console.log(completion.choices[0].message.content);
+        const completion = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",
+            messages: chatHistory.map(entry => entry.messsageUser).flat(),
+        });
 
-        // Menghapus spasi di awal dan akhir dari botResponse
-        botResponse = botResponse.trim();
-        chatHistory.push([{
+        let botResponse = completion.choices[0].message.content.trim();
+
+        userHistory.messsageUser.push({
             "role": "assistant",
             "content": botResponse
-        }]);
+        });
 
         console.log(chatHistory);
 
         res.json({
-            response: botResponse
+            response: botResponse,
+            listmessages: chatHistory // Mengirim seluruh chat history sebagai respons
         });
     } catch (error) {
         console.error('Error:', error);
@@ -170,12 +183,26 @@ app.post('/chat', async (req, res) => {
         });
     }
 });
+
 app.post('/clear', (req, res) => {
-    chatHistory.length = 0; // Mengosongkan array chatHistory
-    res.status(200).json({
-        message: 'Chat history cleared'
-    });
+    const userId = req.body.userId; // Mengambil userId dari req.body
+
+    // Mencari indeks pengguna dalam chatHistory
+    const userIndex = chatHistory.findIndex(entry => entry.idUser === userId);
+
+    if (userIndex !== -1) {
+        // Jika userId ditemukan, hapus messageUser untuk userId tersebut
+        chatHistory[userIndex].messsageUser.length = 0;
+        res.status(200).json({
+            message: `Chat history cleared for userId: ${userId}`
+        });
+    } else {
+        res.status(404).json({
+            error: `User with userId: ${userId} not found`
+        });
+    }
 });
+
 
 
 app.listen(port, () => {
