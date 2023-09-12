@@ -62,6 +62,7 @@ app.post('/audio', upload.single('audio'), async (req, res) => {
         .input(audioFilePath)
         .toFormat('mp3')
         .on('end', async () => {
+
             fs.unlinkSync(audioFilePath);
             const transcription = await openai.audio.transcriptions.create({
                 file: fs.createReadStream(mp3FilePath),
