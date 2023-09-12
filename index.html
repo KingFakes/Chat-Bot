@@ -128,26 +128,39 @@
        </div>`;
                         }, 1000);
 
-                        // Kirim audio ke server
                         const formData = new FormData();
                         formData.append('audio', audioBlob, 'voice_message.wav');
 
                         fetch('https://chat.dicodingbot.site/audio', {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'multipart/form-data'
-                                },
-                                body: formData
+                                body: formData,
                             })
-                            .then(response => response.json())
+                            .then(response => {
+                                // Pastikan respons adalah teks atau JSON
+                                const contentType = response.headers.get('content-type');
+                                if (contentType && contentType.includes('application/json')) {
+                                    return response.json();
+                                } else {
+                                    return response.text();
+                                }
+                            })
                             .then(data => {
-                                const jawabanelement = document.getElementById(
-                                    `jawaban-${uniqueResponseId}`);
-                                typeEffect(jawabanelement, data.response, 20);
+                                if (typeof data === 'string') {
+                                    // Data adalah teks, tidak perlu mem-parsing JSON
+                                    const jawabanelement = document.getElementById(
+                                        `jawaban-${uniqueResponseId}`);
+                                    typeEffect(jawabanelement, data, 20);
+                                } else {
+                                    // Data adalah objek JSON
+                                    const jawabanelement = document.getElementById(
+                                        `jawaban-${uniqueResponseId}`);
+                                    typeEffect(jawabanelement, data.response, 20);
+                                }
                             })
                             .catch(error => {
                                 console.error('Error:', error);
                             });
+
                     }
                     mediaRecorder.start();
                 })
