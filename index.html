@@ -132,24 +132,19 @@
                         const formData = new FormData();
                         formData.append('audio', audioBlob, 'voice_message.wav');
 
-                        fetch('https://chat.dicodingbot.site/audio', {
+                        fetch('http://localhost:3000/audio', {
                                 method: 'POST',
                                 body: formData
                             })
-                            .then(response => {
-                                if (!response.ok) {
-                                    throw new Error('Network response was not ok');
-                                }
-                                return response.json(); // Coba parse sebagai JSON
-                            })
+                            .then(response => response.json())
                             .then(data => {
-                                // Tangani data JSON yang berhasil di-parse
-                                console.log(data);
+                                const jawabanelement = document.getElementById(
+                                    `jawaban-${uniqueResponseId}`);
+                                typeEffect(jawabanelement, data.response, 20);
                             })
                             .catch(error => {
                                 console.error('Error:', error);
                             });
-
                     }
                     mediaRecorder.start();
                 })

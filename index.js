@@ -1,4 +1,5 @@
 import express from 'express';
+import fileUpload from 'express-fileupload';
 import {
     fileURLToPath
 } from 'url'; // Import fileURLToPath
@@ -12,6 +13,9 @@ import {
     OpenAI
 } from 'openai';
 
+
+
+
 dotenv.config();
 
 const app = express();
@@ -22,7 +26,7 @@ const openai = new OpenAI({
 });
 app.use(cors());
 app.use(express.json());
-
+app.use(fileUpload());
 // Menggunakan import.meta.url dan fileURLToPath untuk mengakses __dirname
 const __filename = fileURLToPath(
     import.meta.url);
@@ -63,6 +67,24 @@ app.get('/list-files', (req, res) => {
         res.json({
             files
         });
+    });
+});
+
+app.post('/upload', (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('Tidak ada file yang diunggah.');
+    }
+
+    // Dapatkan file dari req.files
+    const file = req.files.sampleFile;
+
+    // Simpan file ke direktori yang Anda inginkan
+    file.mv(`public/${file.name}`, (err) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+
+        res.send('File audio berhasil diunggah.');
     });
 });
 
