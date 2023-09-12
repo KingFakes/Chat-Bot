@@ -384,67 +384,67 @@
 
         /* Custom Alert */
         .custom-alert {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        justify-content: center;
-        align-items: center;
-        z-index: 3;
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
         }
 
         .custom-alert-content {
-        background: var(--incoming-chat-bg);
-        padding: 20px;
-        border-radius: 4px;
-        text-align: center;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            background: var(--incoming-chat-bg);
+            padding: 20px;
+            border-radius: 4px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
         }
 
         .custom-alert p {
-        color: var(--text-color);
-        font-size: 1.2rem;
-        margin-bottom: 20px;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            margin-bottom: 20px;
         }
 
         .custom-alert-buttons {
-        display: flex;
-        justify-content: center;
+            display: flex;
+            justify-content: center;
         }
 
         .custom-alert-button {
-        background: var(--incoming-chat-border);
-        color: var(--text-color);
-        padding: 10px 20px;
-        margin: 0 10px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1.1rem;
-        transition: background-color 0.2s, color 0.2s;
+            background: var(--incoming-chat-border);
+            color: var(--text-color);
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.2s, color 0.2s;
         }
 
         .custom-alert-button:hover {
-        background: var(--icon-hover-bg);
+            background: var(--icon-hover-bg);
         }
-
     </style>
 </head>
 
 <body>
-                  <div id="custom-alert" class="custom-alert">
-                      <div class="custom-alert-content">
-                          <p>Are you sure you want to delete all the chats?</p>
-                          <div class="custom-alert-buttons">
-                              <button id="confirm-delete" class="custom-alert-button">Yes</button>
-                              <button id="cancel-delete" class="custom-alert-button">Cancel</button>
-                          </div>
-                      </div>
-                  </div>
+    <div id="custom-alert" class="custom-alert">
+        <div class="custom-alert-content">
+            <p>Are you sure you want to delete all the chats?</p>
+            <div class="custom-alert-buttons">
+                <button id="confirm-delete" class="custom-alert-button">Yes</button>
+                <button id="cancel-delete" class="custom-alert-button">Cancel</button>
+            </div>
+        </div>
+    </div>
     <!-- Chats container -->
     <div class="chat-container"></div>
 
@@ -610,7 +610,7 @@
 
                 // Create an outgoing chat div with user's message and append it to chat container
                 const outgoingChatDiv = createChatElement(html, "outgoing");
-                chatContainer.querySelector(".default-text")?.remove();
+                chatContainer.querySelector(".default-text") ?.remove();
                 chatContainer.appendChild(outgoingChatDiv);
                 chatContainer.scrollTo(0, chatContainer.scrollHeight);
                 setTimeout(showTypingAnimation, 500);
