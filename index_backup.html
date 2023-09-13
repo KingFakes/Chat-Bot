@@ -109,10 +109,11 @@
                     }
                     mediaRecorder.onstop = () => {
                         const audioBlob = new Blob(audioChunks, {
-                            type: 'audio/wav'
+                            type: 'audio/mp3'
                         });
                         const audioUrl = URL.createObjectURL(audioBlob);
                         const audio = new Audio(audioUrl);
+                        console.log(audio);
                         const chatBox = document.getElementById('chat-box');
 
                         const uniqueResponseId = Date.now();
@@ -260,22 +261,7 @@
                 const jawabanelement = document.getElementById(`jawaban-${uniqueResponseId}`);
                 const copyButtonElement = document.getElementById(`jawaban-${uniqueResponseId}`);
                 typeEffect(jawabanelement, data.response, 20);
-                copyButtonElement.addEventListener('click', function () {
-                    const range = document.createRange();
-                    range.selectNode(jawabanelement);
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(range);
-                    document.execCommand('copy');
-                    window.getSelection().removeAllRanges();
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Teks berhasil disalin!',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500 // Menampilkan pesan selama 1,5 detik
-                    });
-                });
+               
                 document.getElementById('user-input').value = '';
             } else if (selectedMode === 'picture') {
                 const response = await fetch('https://chat.dicodingbot.site/images', {
