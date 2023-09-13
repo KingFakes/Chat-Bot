@@ -162,6 +162,7 @@
                     Your browser does not support the video tag.
                 </video></div>
                 `
+            localStorage.setItem("selectedOption", "Chat");
          } catch (error) { // Add error class to the paragraph element and set error text
              pElement.classList.add("error");
              pElement.textContent =

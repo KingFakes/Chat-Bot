@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views/index.html')); // Menggunakan path.join untuk menggabungkan __dirname dengan path ke index.html
 });
 app.get('/test', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index_backup.html')); // Menggunakan path.join untuk menggabungkan __dirname dengan path ke index.html
+    res.sendFile(path.join(__dirname, 'views/index_backup.html')); // Menggunakan path.join untuk menggabungkan __dirname dengan path ke index.html
 });
 
 // Konfigurasi multer untuk menangani file audio
