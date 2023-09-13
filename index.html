@@ -319,6 +319,12 @@
                 margin-left: 5px;
             }
 
+            .navbar-left span {
+            height: 45px !important;
+            width: 45px !important;
+            margin-left: 5px !important;
+            }
+
             span.material-symbols-rounded {
                 font-size: 1.25rem !important;
             }
@@ -345,7 +351,7 @@
             position: relative;
             display: inline-block;
             cursor: pointer;
-            border: 1px solid var(--incoming-chat-border);
+            border: 1px solid var(--incomingou);
             background: var(--incoming-chat-bg);
             color: var(--text-color);
             padding: 10px 10px;
@@ -365,7 +371,7 @@
             position: absolute;
             display: none;
             background-color: var(--incoming-chat-bg);
-            border: 1px solid var(--incoming-chat-border);
+            border: 1px solid var(--outgoing-chat-border);
             border-radius: 4px;
             z-index: 2;
         }
@@ -432,6 +438,144 @@
         .custom-alert-button:hover {
             background: var(--icon-hover-bg);
         }
+        
+        .navbar-logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-left: 10px;
+        }
+
+        #hamburger-btn {
+        cursor: pointer;
+        }
+
+        /* Responsive Styling untuk Navbar */
+        @media screen and (max-width: 600px) {
+        .navbar {
+        padding: 10px;
+        }
+
+        .navbar-logo {
+        display: none; /* Anda dapat menyesuaikan bagaimana logo ditampilkan pada perangkat kecil */
+        }
+        }
+        /* Navbar Styles */
+        .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--outgoing-chat-bg);
+        padding: 10px 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        position: relative;
+         outline: 1px solid var(--incoming-chat-border);
+        }
+
+        .navbar-left {
+        display: flex;
+        align-items: center;
+        }
+
+        .navbar-center {
+        text-align: center;
+        flex-grow: 1;
+        }
+
+        .navbar-right {
+        display: flex;
+        }
+
+        /* Hamburger Button Styles */
+        #hamburger-button {
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: var(--icon-color);
+        }
+
+        .navbar span {
+            width: 55px;
+            height: 55px;
+            display: flex;
+            border-radius: 4px;
+            align-items: center;
+            justify-content: center;
+            color: var(--icon-color);
+            margin-left: 7px;
+            font-size: 1.4rem;
+            background: var(--incoming-chat-bg);
+            outline: 1px solid var(--incoming-chat-border);
+        }
+
+        /* Offcanvas Styles */
+        .offcanvas {
+        position: fixed;
+        top: 0;
+        left: -300px;
+        width: 300px;
+        height: 100%;
+        background: var(--incoming-chat-bg);
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+        transition: left 0.3s ease-in-out;
+        }
+
+        .offcanvas-content {
+        padding: 20px;
+        color: var(--text-color);
+        }
+
+        .menu-list {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        list-style: none;
+        padding: 0;
+        }
+
+        .menu-button {
+        cursor: pointer;
+        background: var(--incoming-chat-bg);
+        border: 1px solid var(--incoming-chat-border);
+        border-radius: 4px;
+        padding: 10px;
+        text-align: center;
+        font-size: 1.4rem;
+        color: var(--icon-color);
+        margin-bottom: 10px;
+        outline: none;
+        }
+
+        .menu-button:hover {
+        background: var(--icon-hover-bg);
+        }
+
+        /* Offcanvas Show Animation */
+        .offcanvas.show {
+        left: 0;
+        }
+ #close-offcanvas {
+ position: absolute;
+ top: 10px;
+ right: 10px;
+ cursor: pointer;
+  width: 55px;
+  height: 55px;
+  display: flex;
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+  color: var(--icon-color);
+  margin-left: 7px;
+  font-size: 1.4rem;
+  background: var(--outgoing-chat-bg);
+  outline: 1px solid var(--outgoing-chat-border);
+ }
+
+ .offcanvas-content{
+text-align: center;
+ }
+
+
+
     </style>
 </head>
 
@@ -445,6 +589,33 @@
             </div>
         </div>
     </div>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <span id="hamburger-button" class="material-symbols-rounded">menu</span>
+        </div>
+        <div class="navbar-center">
+            
+        </div>
+        <div class="navbar-right">
+            <!-- Tambahkan elemen-elemen navbar kanan di sini jika diperlukan -->
+        </div>
+    </nav>
+
+    <!-- Offcanvas -->
+    <div id="offcanvas" class="offcanvas">
+        <div class="offcanvas-content">
+            <span id="close-offcanvas" class="material-symbols-rounded">close</span>
+            <h2>Menu</h2>
+            <div class="menu-list">
+                <button class="menu-button">Home</button>
+                <button class="menu-button">Chat</button>
+                <button class="menu-button">Picture</button>
+                <!-- Tambahkan tombol-tombol Offcanvas lainnya di sini jika diperlukan -->
+            </div>
+        </div>
+    </div>
+
     <!-- Chats container -->
     <div class="chat-container"></div>
 
@@ -479,6 +650,28 @@
             const customAlert = document.getElementById("custom-alert");
             const confirmDelete = document.getElementById("confirm-delete");
             const cancelDelete = document.getElementById("cancel-delete")
+const hamburgerButton = document.getElementById("hamburger-button");
+const offcanvas = document.getElementById("offcanvas");
+const closeOffcanvasButton = document.getElementById("close-offcanvas");
+const menuButtons = document.querySelectorAll(".menu-button");
+
+// Toggle Offcanvas
+hamburgerButton.addEventListener("click", () => {
+offcanvas.classList.add("show");
+});
+
+closeOffcanvasButton.addEventListener("click", () => {
+offcanvas.classList.remove("show");
+});
+
+// Toggle Submenu
+menuButtons.forEach((button) => {
+button.addEventListener("click", () => {
+const submenu = button.nextElementSibling;
+submenu.classList.toggle("show");
+});
+});
+
 
             let userText = null;
 
