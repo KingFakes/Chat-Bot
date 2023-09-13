@@ -610,7 +610,7 @@
 
                 // Create an outgoing chat div with user's message and append it to chat container
                 const outgoingChatDiv = createChatElement(html, "outgoing");
-                chatContainer.querySelector(".default-text") ?.remove();
+                chatContainer.querySelector(".default-text")?.remove();
                 chatContainer.appendChild(outgoingChatDiv);
                 chatContainer.scrollTo(0, chatContainer.scrollHeight);
                 setTimeout(showTypingAnimation, 500);
@@ -651,27 +651,64 @@
                 }
             }
 
-           const prefersDarkMode = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            themeButton.addEventListener("click", () => {
+                // Toggle body's class for the theme mode
+                document.body.classList.toggle("light-mode");
 
-           // Cek apakah preferensi mode saat ini adalah dark mode
-           if (prefersDarkMode) {
-           document.body.classList.add("light-mode");
-           themeButton.innerText = "dark_mode";
-           localStorage.setItem("themeColor", "dark_mode");
-           } else {
-           document.body.classList.remove("light-mode");
-           themeButton.innerText = "light_mode";
-           localStorage.setItem("themeColor", "light_mode");
-           }
+                // Simpan status tema yang diperbarui ke Local Storage
+                localStorage.setItem("themeColor", document.body.classList.contains("light-mode") ?
+                    "light_mode" : "dark_mode");
 
-           // Event listener untuk toggle tema
-           themeButton.addEventListener("click", () => {
-           // Toggle body's class for the theme mode and save the updated theme to local storage
-           document.body.classList.toggle("light-mode");
-           const newTheme = document.body.classList.contains("light-mode") ? "light_mode" : "dark_mode";
-           localStorage.setItem("themeColor", newTheme);
-           themeButton.innerText = newTheme;
-           });
+                // Toggle ikon tema antara "light_mode" dan "dark_mode"
+                themeButton.innerText = document.body.classList.contains("light-mode") ? "dark_mode" :
+                    "light_mode";
+            });
+
+            // Fungsi untuk memeriksa preferensi tema perangkat
+            function checkDeviceDarkMode() {
+                const darkModeMediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+                const previousThemeDevice = localStorage.getItem("themeDevice");
+
+                if (darkModeMediaQuery.matches) {
+                localStorage.setItem("themeDevice", "dark_mode");
+                } else {
+                localStorage.setItem("themeDevice", "light_mode");
+                }
+
+                const currentThemeDevice = localStorage.getItem("themeDevice");
+
+                if (previousThemeDevice === "light_mode" && currentThemeDevice === "dark_mode") {
+                // Theme sebelumnya adalah light_mode, sedangkan sekarang adalah dark_mode
+                document.body.classList.remove("light-mode");
+                document.body.classList.add("dark-mode");
+                themeButton.innerText = "dark_mode";
+                localStorage.setItem("themeColor", "dark_mode");
+                } else if (previousThemeDevice === "dark_mode" && currentThemeDevice === "light_mode") {
+                // Theme sebelumnya adalah dark_mode, sedangkan sekarang adalah light_mode
+                document.body.classList.remove("dark-mode");
+                document.body.classList.add("light-mode");
+                themeButton.innerText = "light_mode";
+                localStorage.setItem("themeColor", "light_mode");
+                } else if (!previousThemeDevice) {
+                // Tidak ada tema sebelumnya (pertama kali pengguna mengakses)
+                if (currentThemeDevice === "light_mode") {
+                document.body.classList.add("light-mode");
+                themeButton.innerText = "light_mode";
+                localStorage.setItem("themeColor", "light_mode");
+                } else {
+                document.body.classList.add("dark-mode");
+                themeButton.innerText = "dark_mode";
+                localStorage.setItem("themeColor", "dark_mode");
+                }
+                }
+            }
+
+            // Panggil fungsi untuk memeriksa preferensi tema perangkat saat halaman dimuat
+            checkDeviceDarkMode();
+
+            // Tambahkan event listener untuk memantau perubahan preferensi tema perangkat
+            window.matchMedia("(prefers-color-scheme: dark)").addListener(checkDeviceDarkMode);
 
 
             const initialInputHeight = chatInput.scrollHeight;
