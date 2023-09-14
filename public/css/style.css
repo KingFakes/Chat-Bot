@@ -578,7 +578,7 @@
      /* Memungkinkan opsi untuk meluncur ke baris baru jika tidak cukup ruang */
      justify-content: flex-start;
      /* Mengatur justifikasi awal agar opsi tidak terlalu berdekatan */
-     margin-top: -65px;
+     margin-top: -79px;
      /* Menggeser popup ke atas textarea */
  }
 
