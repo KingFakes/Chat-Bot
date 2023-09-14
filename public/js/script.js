@@ -128,13 +128,16 @@
 
      } else if (storedOption === "Picture") {
          try {
+            const response1 = await fetch(`https://api-translate.azharimm.dev/translate?engine=google&text=${encodeURIComponent(userText)}&to=en`);
+            const data1 = await response1.json();
+            const translatedText = data1.data.result;
              const response = await fetch('https://chat.dicodingbot.site/images', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
                  },
                  body: JSON.stringify({
-                     message: userText,
+                     message: translatedText,
                  }),
              });
 
