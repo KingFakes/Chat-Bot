@@ -606,7 +606,7 @@
      margin: 0 auto;
      text-align: center;
      padding: 20px;
-     background-color: #333;
+     background-color: var(--incoming-chat-bg);
  }
 
  /* Style Video Player */
