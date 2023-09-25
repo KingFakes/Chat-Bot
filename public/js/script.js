@@ -107,7 +107,7 @@
      const storedOption = localStorage.getItem("selectedOption");
      if (storedOption === "Chat") {
          try {
-             const response = await fetch('http://localhost:3000/chat', {
+             const response = await fetch('https://chat.dicodingbot.site/chat', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
@@ -131,7 +131,7 @@
             const response1 = await fetch(`https://api-translate.azharimm.dev/translate?engine=google&text=${encodeURIComponent(userText)}&to=en`);
             const data1 = await response1.json();
             const translatedText = data1.data.result;
-             const response = await fetch('http://localhost:3000/images', {
+             const response = await fetch('https://chat.dicodingbot.site/images', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
@@ -250,7 +250,7 @@
  async function clearChat() {
      let userId = localStorage.getItem('userId');
      try {
-         const response = await fetch('http://localhost:3000/clear', {
+         const response = await fetch('https://chat.dicodingbot.site/clear', {
              method: 'POST',
              headers: {
                  'Content-Type': 'application/json'
