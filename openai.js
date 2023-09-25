@@ -15,7 +15,7 @@ let config = {
     url: 'https://api.openai.com/v1/chat/completions',
     headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer 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'
+        'Authorization': 'Bearer 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'
     },
     data: data
 };
