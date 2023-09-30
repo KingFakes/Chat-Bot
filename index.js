@@ -26,6 +26,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'views/index.html'));
 });
 const chatHistory = [];
+const chatHistorys = [];
 
 app.post('/chat', async (req, res) => {
     const userMessage = req.body.message;
@@ -78,6 +79,104 @@ app.post('/chat', async (req, res) => {
         console.error('Error:', error);
         res.status(500).json({
             error: 'An error occurred',
+        });
+    }
+});
+const userChats = {};
+
+app.post('/chats', async (req, res) => {
+    const userId = req.body.userId;
+    const userMessage = req.body.message;
+
+    // Periksa apakah userId sudah ada dalam objek userChats
+    if (!userChats[userId]) {
+        // Jika tidak ada, inisialisasikan dengan pesan dari asisten
+        userChats[userId] = {
+            userId,
+            messages: [{
+                role: 'system',
+                content: 'Kamu adalah seorang Babu bernama Dicoding Bot yang bertujuan untuk menjawab pertanyaan saya',
+            }, ],
+        };
+    }
+
+    // Tambahkan pesan pengguna ke dalam riwayat obrolan pengguna
+    userChats[userId].messages.push({
+        role: 'user',
+        content: userMessage,
+    });
+
+    // Kirim pesan ke OpenAI
+    const messages = userChats[userId].messages;
+    try {
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-3.5-turbo',
+            messages,
+            stream: true,
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+            responseType: 'stream',
+        });
+
+        const readableStream = response.data;
+        let responseData = '';
+
+        readableStream.on('data', (chunk) => {
+            responseData += chunk.toString();
+        });
+
+        readableStream.on('end', () => {
+            const dataStrings = responseData.split('\n');
+            const contentArray = [];
+            dataStrings.forEach((dataString) => {
+                if (dataString && dataString !== 'data: [DONE]') {
+                    try {
+                        const data = JSON.parse(dataString.substring('data: '.length));
+                        const content = data.choices[0].delta.content || '';
+                        contentArray.push(content);
+
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error.message);
+                    }
+                }
+            });
+
+            // Gabungkan konten menjadi satu respons JSON
+            const mergedContent = contentArray.join('');
+            userChats[userId].messages.push({
+                role: 'assistant',
+                content: mergedContent,
+            });
+            console.log(userChats);
+            // Kirim respons JSON dengan konten tergabung
+            res.json({
+                response: mergedContent,
+                chat: userChats
+            });
+        });
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({
+            error: 'Internal Server Error'
+        });
+    }
+});
+
+app.delete('/chats', (req, res) => {
+    const userId = req.body.userId;
+
+    if (userChats[userId]) {
+        // Hapus riwayat obrolan pengguna berdasarkan userId
+        delete userChats[userId];
+        res.status(200).json({
+            message: 'Chat history deleted successfully'
+        });
+    } else {
+        res.status(404).json({
+            error: 'User not found'
         });
     }
 });
@@ -185,6 +284,7 @@ app.post('/images', async (req, res) => {
         });
     }
 });
+
 function findUserHistory(userId) {
     return chatHistory.find(entry => entry.idUser === userId);
 }

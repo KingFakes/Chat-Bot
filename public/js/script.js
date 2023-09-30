@@ -107,7 +107,7 @@
      const storedOption = localStorage.getItem("selectedOption");
      if (storedOption === "Chat") {
          try {
-             const response = await fetch('https://chat.dicodingbot.site/chat', {
+             const response = await fetch('https://chat.dicodingbot.site/chats', {
                  method: 'POST',
                  headers: {
                      'Content-Type': 'application/json',
@@ -250,8 +250,8 @@
  async function clearChat() {
      let userId = localStorage.getItem('userId');
      try {
-         const response = await fetch('https://chat.dicodingbot.site/clear', {
-             method: 'POST',
+         const response = await fetch('https://chat.dicodingbot.site/chats', {
+             method: 'DELETE',
              headers: {
                  'Content-Type': 'application/json'
              },
