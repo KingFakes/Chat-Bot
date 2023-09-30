@@ -52,6 +52,8 @@ app.post('/chat', async (req, res) => {
             'https://api.openai.com/v1/chat/completions', {
                 model: 'gpt-3.5-turbo',
                 messages: chatHistory.map((entry) => entry.messsageUser).flat(),
+                temperature: 0,
+                max_tokens: 2048,
             }, {
                 headers: {
                     Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
